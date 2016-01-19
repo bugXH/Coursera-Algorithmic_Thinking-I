@@ -29,6 +29,12 @@ class DPATrial:
         each node number
         """
         self._num_nodes = num_nodes
+
+        # the probability of choosing node j is
+        # (in_degree(j) + 1) / (total_in_degree + |V|)
+        # here, (num_nodes - 1) instances of node j
+        # count for the in-degree of node j of a complete graph
+        # one more instance for the "1" in the numerator
         self._node_numbers = [node for node in range(num_nodes) for dummy_idx in range(num_nodes)]
 
 
@@ -51,7 +57,11 @@ class DPATrial:
         
         # update the list of node numbers so that each node number 
         # appears in the correct ratio
+
+        # add the node itself whose index equals self._num_nodes
+        # for the "1" in the numerator
         self._node_numbers.append(self._num_nodes)
+        # add the neighbors
         self._node_numbers.extend(list(new_node_neighbors))
         
         #update the number of nodes

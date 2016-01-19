@@ -3,7 +3,7 @@ Provided code for Application portion of Module 1
 
 Imports physics citation graph
 
-Code implementation for Application question 1 & 2 of Module 1 
+Code for Application question 1 & 2 of Module 1 
 """
 
 # general imports
@@ -67,6 +67,27 @@ def normalization(distribution):
         normalized_value = float(dist_value) / summation
         normalized[in_degree] = normalized_value
     return normalized
+
+
+def avg_outdegree(graph):
+    """
+    calculate the average out-degree for the given graph
+
+    Parameters
+    ----------
+    graph: dict
+    a dictionary representing a digraph
+
+    Returns
+    -------
+    avg: float
+    the average value of out-degree of the graph
+    """
+    summation = 0.0
+    for node in graph:
+        summation += len(graph[node])
+    avg = summation / len(graph)
+    return avg
 
 
 def question1_plot():
@@ -137,4 +158,5 @@ def question2_plot():
 
 
 if __name__ == '__main__':
-    question2_plot()
+    citation = load_graph(CITATION_URL)
+    print avg_outdegree(citation)
