@@ -4,7 +4,7 @@ Code for Application question 3 - 5 of Module 1
 
 from DPATrial import DPATrial
 from project1 import make_complete_graph, in_degree_distribution
-from application1_2 import normalization
+from application1_2 import normalization, load_graph, CITATION_URL
 from matplotlib import pyplot as plt
 
 
@@ -54,8 +54,15 @@ def question4_plot(n, m):
     plt.ylabel('Log of Normalized Distribution')
     plt.plot(normalized_dist.keys(), normalized_dist.values(),
              'ro', markersize=8)
-    plt.show()
+
+    # compare with the citation graph
+    
+    # citation = load_graph(CITATION_URL)
+    # citation_dist = normalization(in_degree_distribution(citation))
+    # plt.plot(citation_dist.keys(), citation_dist.values(),
+    #          'bo', markersize=8)
+    # plt.show()
 
 
 if __name__ == '__main__':
-    question4_plot(28000, 13)
+    question4_plot(27770, 13)
