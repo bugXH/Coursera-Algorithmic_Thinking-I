@@ -121,7 +121,3 @@ def compute_resilience(ugraph, attack_order):
                 ugraph[remainingnode].remove(node)
         resilience.append(largest_cc_size(ugraph))
     return resilience
-
-
-
-
