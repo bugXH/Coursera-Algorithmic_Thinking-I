@@ -55,7 +55,7 @@ def upa(n, m):
     m: int
     number of existing nodes
 
-    The computer network has 1239 nodes and 3047 edges, m should be 5
+    The computer network has 1239 nodes and 3047 edges, m should be 3
 
     Returns
     -------
@@ -102,10 +102,11 @@ def question1_plot():
     plot for question 1
     """
     network_graph = load_graph(NETWORK_URL)
+    n = 1239
     p = 0.004
     m = 3
-    er_graph = er(1239, 0.004)
-    upa_graph = upa(1239, 3)
+    er_graph = er(n, 0.004)
+    upa_graph = upa(n, 3)
 
     graphs = [network_graph, er_graph, upa_graph]
     attack_orders = [random_order(graph) for graph in graphs]
@@ -113,7 +114,7 @@ def question1_plot():
     resiliences = [compute_resilience(graph, attack_order) for
                    graph, attack_order in zip(graphs, attack_orders)]
 
-    removed_num = range(1239 + 1)
+    removed_num = range(n + 1)
     for resil in resiliences:
         plt.plot(removed_num, resil)
     legend_text = ['Computer Network', 'ER Graph, p = %.3f' % (p),
@@ -151,7 +152,6 @@ def fast_targeted_order(ugraph):
     for node, connected in new_graph.iteritems():
         degree_sets[len(connected)].add(node)
     l = []
-    i = 0
     for degree_set in degree_sets[:: -1]:
         while len(degree_set) > 0:
             u = degree_set.pop()
@@ -160,8 +160,6 @@ def fast_targeted_order(ugraph):
                 degree_sets[d].remove(v)
                 degree_sets[d - 1].add(v)
             l.append(u)
-            i += 1
-
             # remove u from graph
             delete_node(new_graph, u)
     return l
@@ -193,5 +191,33 @@ def question3_plot():
     plt.show()
 
 
+def question4_plot():
+    """
+    generate plot for question 4
+    """
+    network_graph = load_graph(NETWORK_URL)
+    n = 1239
+    p = 0.004
+    m = 3
+    er_graph = er(n, p)
+    upa_graph = upa(n, m)
+
+    graphs = [network_graph, er_graph, upa_graph]
+    attack_orders = [fast_targeted_order(graph) for graph in graphs]
+
+    resiliences = [compute_resilience(graph, attack_order) for
+                   graph, attack_order in zip(graphs, attack_orders)]
+
+    removed_num = range(n + 1)
+    for resil in resiliences:
+        plt.plot(removed_num, resil)
+    legend_text = ['Computer Network', 'ER Graph, p = %.3f' % (p),
+                   'UPA Graph, m = %d' % (m)]
+    plt.legend(legend_text, loc="upper right")
+    plt.xlabel('the number of nodes removed')
+    plt.ylabel('the size of the largest connect component')
+    plt.title('Graph resiliences')
+    plt.show()
+
 if __name__ == '__main__':
-    question3_plot()
+    question4_plot()
