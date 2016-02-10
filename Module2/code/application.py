@@ -1,10 +1,11 @@
 from UPATrial import UPATrial
-from loadgraph import load_graph, NETWORK_URL, targeted_order
+from util import (load_graph, NETWORK_URL, targeted_order,
+                  copy_graph, delete_node)
 from itertools import combinations
 from project2 import compute_resilience
 from matplotlib import pyplot as plt
 import random
-
+import timeit
 """
 Code for Application questions of Module 2
 """
@@ -124,5 +125,73 @@ def question1_plot():
     plt.show()
 
 
+def fast_targeted_order(ugraph):
+    """
+    Implementation of algorithm FastTargetedOrder
+    This function creates a list degree_sets whose kth element is
+    the set of nodes of degree k. The method then iterates through
+    the list degree_sets in order of decreasing degree. When it
+    encounter a non-empty set, the nodes in this set must be of
+    maximum degree. The method then repeatedly chooses a node from
+    this set, deletes that node from the graph,
+    and updates degree_sets appropriately.
+
+    Parameters
+    ----------
+    ugraph: dict
+    a dictionary represents the undirected graph
+
+    Returns
+    -------
+    l: list
+    an ordered list of the nodes in decreasing order of degrees
+    """
+    degree_sets = [set()] * len(ugraph.keys())
+    new_graph = copy_graph(ugraph)
+    for node, connected in new_graph.iteritems():
+        degree_sets[len(connected)].add(node)
+    l = []
+    i = 0
+    for degree_set in degree_sets[:: -1]:
+        while len(degree_set) > 0:
+            u = degree_set.pop()
+            for v in new_graph[u]:
+                d = len(new_graph[v])
+                degree_sets[d].remove(v)
+                degree_sets[d - 1].add(v)
+            l.append(u)
+            i += 1
+
+            # remove u from graph
+            delete_node(new_graph, u)
+    return l
+
+
+def question3_plot():
+    """
+    generate plot for question 3
+    """
+    m = 5
+    ns = range(10, 1000, 10)
+    target_time = []
+    fast_time = []
+    for n in ns:
+        upa_graph = upa(n, m)
+        upa_graph2 = copy_graph(upa_graph)
+        target_time.append(timeit.timeit(lambda: targeted_order(upa_graph),
+                                         number=1))
+
+        fast_targeted_order(upa_graph2)
+        fast_time.append(timeit.timeit(lambda: fast_targeted_order(upa_graph),
+                                       number=1))
+    plt.plot(ns, target_time)
+    plt.plot(ns, fast_time)
+    plt.legend(['targeted_order', 'fast_targeted_order'], loc='upper left')
+    plt.title('Running Time Comparison (Implemented in Desktop Python)')
+    plt.xlabel('number of nodes')
+    plt.ylabel('running time')
+    plt.show()
+
+
 if __name__ == '__main__':
-    question1_plot()
+    question3_plot()
