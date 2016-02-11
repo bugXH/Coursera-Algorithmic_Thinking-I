@@ -201,9 +201,10 @@ def question4_plot():
     m = 3
     er_graph = er(n, p)
     upa_graph = upa(n, m)
-
+    # get_order = fast_targeted_order
+    get_order = targeted_order
     graphs = [network_graph, er_graph, upa_graph]
-    attack_orders = [fast_targeted_order(graph) for graph in graphs]
+    attack_orders = [get_order(graph) for graph in graphs]
 
     resiliences = [compute_resilience(graph, attack_order) for
                    graph, attack_order in zip(graphs, attack_orders)]
