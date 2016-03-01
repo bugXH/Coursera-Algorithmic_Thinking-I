@@ -80,7 +80,7 @@ def slow_closest_pair(cluster_list):
     where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.
     """
-    dist, idx1, idx2 = pair_distance(cluster_list, 0, 1), 0, 1
+    dist, idx1, idx2 = float('inf'), -1, -1
     for u in range(len(cluster_list)):
         for v in range(len(cluster_list)):
             if u != v:
@@ -119,7 +119,7 @@ def fast_closest_pair(cluster_list):
         dl, il, jl = fast_closest_pair(pl)
         dr, ir, jr = fast_closest_pair(pr)
         dist, idx1, idx2 = get_min((dl, il, jl), (dr, ir + m, jr + m))
-        mid = (p[m - 1].horiz_pos + p[m].horiz_pos) / 2
+        mid = (p[m - 1].horiz_center() + p[m].horiz_center()) / 2
         dist, idx1, idx2 = get_min((dist, idx1, idx2),
                                    (closest_pair_strip(p, mid, dist)))
 
@@ -150,11 +150,19 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
     cluster_list[idx1] and cluster_list[idx2]
     lie in the strip and have minimum distance dist.
     """
+    p = cluster_list
+    s = [i for i in range(len(p))
+         if math.fabs(p[i].horiz_center() - horiz_center) < half_width]
+    p.sort(key=lambda cluster: cluster.vert_center())
+    k = len(s)
+    dist, idx1, idx2 = float('inf'), -1, -1
+    for u in range(k - 2):
+        for v in range(u + 1, min(u + 3, k - 1)):
+            dist, idx1, idx2 = get_min((dist, idx1, idx2),
+                                       pair_distance(p, s[u], s[v]))
+    return (dist, idx1, idx2)
 
-    return ()
-            
- 
-    
+
 ######################################################################
 # Code for hierarchical clustering
 
@@ -163,28 +171,87 @@ def hierarchical_clustering(cluster_list, num_clusters):
     """
     Compute a hierarchical clustering of a set of clusters
     Note: the function may mutate cluster_list
-    
-    Input: List of clusters, integer number of clusters
-    Output: List of clusters whose length is num_clusters
+
+    Parameters
+    ----------
+    cluster_list: list
+    a list of clusters
+
+    num_clusters: int
+    integer number of clusters
+
+
+    Returns
+    -------
+    new_cluster_list: list
+    a list of clusters whose length is num_clusters
     """
-    
-    return []
+    new_cluster_list = cluster_list[:]
+
+    while len(new_cluster_list) > num_clusters:
+        dist, idx1, idx2 = fast_closest_pair(new_cluster_list)
+        new_cluster_list[idx1].merge_clusters(new_cluster_list[idx2])
+        del new_cluster_list[idx2]
+
+    return new_cluster_list
 
 
 ######################################################################
 # Code for k-means clustering
 
-    
+
 def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     """
     Compute the k-means clustering of a set of clusters
     Note: the function may not mutate cluster_list
-    
-    Input: List of clusters, integers number of clusters and number of iterations
-    Output: List of clusters whose length is num_clusters
+
+    Parameters
+    ----------
+    cluster_list: list
+    a list of clusters
+
+    num_clusters: int
+    number of clusters
+
+    num_iterations: int
+    number of iterations
+
+
+    Returns
+    -------
+    result: list
+    a list of clusters whose length is num_clusters
     """
 
-    # position initial clusters at the location of clusters with largest populations
-            
-    return []
+    # position initial clusters at the location of
+    # clusters with largest populations
+    cluster_n = len(cluster_list)
+
+    miu_k = sorted(cluster_list,
+                   key=lambda c: c.total_population())[-num_clusters:]
+    miu_k = [c.copy() for c in miu_k]
+
+    # n: cluster_n
+    # q: num_iterations
+    for _ in xrange(num_iterations):
+        cluster_result = [alg_cluster.Cluster(set([]), 0, 0, 0, 0)
+                          for _ in range(num_clusters)]
+        # put the node into closet center node
+
+        for jjj in xrange(cluster_n):
+            min_num_k = 0
+            min_dist_k = float('inf')
+            for num_k in xrange(len(miu_k)):
+                dist = cluster_list[jjj].distance(miu_k[num_k])
+                if dist < min_dist_k:
+                    min_dist_k = dist
+                    min_num_k = num_k
+
+            cluster_result[min_num_k].merge_clusters(cluster_list[jjj])
+
+        # re-computer its center node
+        for kkk in xrange(len(miu_k)):
+            miu_k[kkk] = cluster_result[kkk]
+
+    return cluster_result
 
