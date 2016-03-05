@@ -200,9 +200,9 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     result: list
     a list of clusters whose length is num_clusters
     """
-
-    len_n = len(cluster_list)
-    mu_k = sorted(cluster_list,
+    clusters = cluster_list[:]
+    len_n = len(clusters)
+    mu_k = sorted(clusters,
                   key=lambda c: c.total_population())[-num_clusters:]
     mu_k = [c.copy() for c in mu_k]
 
@@ -214,12 +214,12 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
             min_num_k = 0
             min_dist_k = float('inf')
             for num_k in range(len(mu_k)):
-                dist = cluster_list[idx_j].distance(mu_k[num_k])
+                dist = clusters[idx_j].distance(mu_k[num_k])
                 if dist < min_dist_k:
                     min_dist_k = dist
                     min_num_k = num_k
 
-            result[min_num_k].merge_clusters(cluster_list[idx_j])
+            result[min_num_k].merge_clusters(clusters[idx_j])
 
         for idx_k in range(len(mu_k)):
             mu_k[idx_k] = result[idx_k]
